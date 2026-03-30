@@ -1,0 +1,8 @@
+dhclient
+
+cat /etc/resolv.conf.dhclient-new.* > /etc/resolv.conf
+rm /etc/resolv.conf.dhclient-new.*
+
+sleep 5
+
+apt update -y
