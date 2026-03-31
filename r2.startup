@@ -1,7 +1,10 @@
-ifconfig eth0 192.168.1.254/24 up
-route add default gw 192.168.1.1
+ifconfig eth0 10.0.12.2/30 up
+ifconfig eth1 192.168.2.1/24 up
+route add default gw 10.0.12.1
 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+relay_server=192.168.1.254
 
 until ping -c 1 8.8.8.8 >/dev/null 2>&1; do
     sleep 2
@@ -12,5 +15,7 @@ apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
     -o Dpkg::Options::="--force-confdef" \
     -o Dpkg::Options::="--force-confold" \
-    isc-dhcp-server
-service isc-dhcp-server restart
+    isc-dhcp-relay
+
+dhcrelay -4 -pf /run/dhcrelay.pid -i eth0 -i eth1 "$relay_server" \
+    >/var/log/dhcrelay.log 2>&1 &

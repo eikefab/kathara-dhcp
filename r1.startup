@@ -1,12 +1,20 @@
-ifconfig eth0 10.0.0.1/24 up
-route add -net 192.168.1.0/24 gw 10.0.0.254
+ifconfig eth0 192.168.1.1/24 up
+ifconfig eth1 10.0.12.1/30 up
+ifconfig eth2 10.0.13.1/30 up
+
+route add -net 192.168.2.0/24 gw 10.0.12.2
+route add -net 192.168.3.0/24 gw 10.0.13.2
 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+wan_if=eth3
 
 iptables -F
 iptables -t nat -F
 iptables -P INPUT ACCEPT
 iptables -P FORWARD ACCEPT
 iptables -P OUTPUT ACCEPT
-iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth1 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth1 -j MASQUERADE
+
+for subnet in 10.0.12.0/30 10.0.13.0/30 192.168.1.0/24 192.168.2.0/24 192.168.3.0/24; do
+    iptables -t nat -A POSTROUTING -s "$subnet" -o "$wan_if" -j MASQUERADE
+done
