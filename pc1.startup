@@ -1,8 +1,17 @@
-dhclient
+attempt=0
+until dhclient eth0; do
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge 30 ]; then
+        attempt=0
+    fi
+    sleep 5
+done
 
-cat /etc/resolv.conf.dhclient-new.* > /etc/resolv.conf
-rm /etc/resolv.conf.dhclient-new.*
+if ls /etc/resolv.conf.dhclient-new.* >/dev/null 2>&1; then
+    cat /etc/resolv.conf.dhclient-new.* > /etc/resolv.conf
+    rm /etc/resolv.conf.dhclient-new.*
+fi
 
-sleep 5
+sleep 2
 
 apt update -y
